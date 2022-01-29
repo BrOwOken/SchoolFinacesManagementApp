@@ -4,23 +4,27 @@
 @inject AppController _appController
 @inject NavigationManager _navigationManager
 
-<div class="container">
-    <div class="col">
-        <h3 style="margin-bottom: 32px;">Výsledky hledání pro: @search</h3>
-        @if (searchResults != null)
-        {
-            foreach (var student in searchResults)
-            {
-                <div style="border: 1px solid #e3e3e3; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px;">
-                    <div class="card-body" style="display: flex; flex-flow: row; align-items: center;">
-                        <h5 class="card-title">@student.Email</h5>
-                        <button class="btn btn-secondary" style="margin-left: 16px;" @onclick="() => { ViewStudent(student); }">Zobrazit</button>
-                    </div>
-                </div>
-            }
-        }
-    </div>
-</div>
+<AuthorizeView Roles="admin">
+    <Authorized>
+        <div class="container">
+            <div class="col">
+                <h3 style="margin-bottom: 32px;">Výsledky hledání pro: @search</h3>
+                @if (searchResults != null)
+                {
+                    foreach (var student in searchResults)
+                    {
+                        <div style="border: 1px solid #e3e3e3; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px;">
+                            <div class="card-body" style="display: flex; flex-flow: row; align-items: center;">
+                                <h5 class="card-title">@student.Email</h5>
+                                <button class="btn btn-secondary" style="margin-left: 16px;" @onclick="() => { ViewStudent(student); }">Zobrazit</button>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
 
 @code {
 
