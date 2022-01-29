@@ -1,0 +1,119 @@
+@page "/"
+@using KybernaFinance.Data
+@inject KybernaFinance.Data.AppController _controller
+
+<AuthorizeView>
+    <Authorized>
+        <div class="container">
+            <h1 style="margin-bottom: 32px;">Přehled financí za školné</h1>
+            <div class="row">
+                <div class="col">
+                    <h3 style="margin-bottom: 24px;">Předpis</h3>
+                    <table class="table table-striped mt-4">
+                        <thead>
+                        <tr>
+                            <th scope="col">Částka</th>
+                            <th scope="col">Název</th>
+                            <th scope="col">Datum</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if (prescriptions != null)
+                        {
+                            foreach (var prescription in prescriptions)
+                            {
+                                <tr>
+                                    <td>@prescription.Amount Kč</td>
+                                    <td>@prescription.Name</td>
+                                    <td>@prescription.Date.ToShortDateString()</td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary" @onclick="() => { AddPrescription(); }">Přidej předpis</button>
+                </div>
+                <div class="col">
+                    <h3 style="margin-bottom: 24px;">Platby</h3>
+                    <table class="table table-striped mt-4">
+                        <thead>
+                        <tr>
+                            <th scope="col">Částka</th>
+                            <th scope="col">Od</th>
+                            <th scope="col">Datum</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if (payments != null)
+                        {
+                            foreach (var payment in payments)
+                            {
+                                <tr>
+                                    <td>@payment.Amount Kč</td>
+                                    <td>@payment.From</td>
+                                    <td>@payment.Date.ToShortDateString()</td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary" @onclick="() => { AddPayment(); }">Přidej platbu</button>
+                </div>
+            </div>
+            <h4 style="margin-top: 32px;">K úhradě: @CalculatePayments() Kč</h4>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <h5>Please login</h5>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    List<Payment> payments = new List<Payment>();
+    List<Prescription> prescriptions = new List<Prescription>();
+
+    int CalculatePayments()
+    {
+        int prescriptionsSum = 0;
+        int paymentsSum = 0;
+        if (payments != null)
+        {
+            foreach (var payment in payments)
+            {
+                paymentsSum += payment.Amount;
+            }
+        }
+        if (prescriptions != null)
+        {
+            foreach (var prescription in prescriptions)
+            {
+                prescriptionsSum += prescription.Amount;
+            }
+        }
+
+        return prescriptionsSum - paymentsSum;
+    }
+    
+    protected override void OnInitialized()
+    {
+        payments = _controller.GetCurrentUserPayments(PaymentType.Tuition);
+        prescriptions = _controller.GetCurrentUserPrescriptions(PaymentType.Tuition);
+        StateHasChanged();
+    }
+
+    EventCallback AddPayment()
+    {
+        _controller.AddPaymentToCurrentUser(PaymentType.Tuition);
+        payments = _controller.GetCurrentUserPayments(PaymentType.Tuition);
+        StateHasChanged();
+        return EventCallback.Empty;
+    }
+
+    EventCallback AddPrescription()
+    {
+        _controller.AddPrescriptionToCurrentUser(PaymentType.Tuition);
+        prescriptions = _controller.GetCurrentUserPrescriptions(PaymentType.Tuition);
+        StateHasChanged();
+        return EventCallback.Empty;
+    }
+}

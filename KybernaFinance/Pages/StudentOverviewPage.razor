@@ -1,0 +1,214 @@
+@page "/overview/{StudentId}"
+@using KybernaFinance.Data
+@inject AppController _appController
+
+<div class="container">
+    <h2 style="margin-bottom: 32px;">Přehled financí pro: @student.Email</h2>
+    <h3 style="margin-bottom: 32px;">Školné</h3>
+    <div class="row">
+        <div class="col">
+            <h4 style="margin-bottom: 24px;">Předpis</h4>
+            <table class="table table-striped mt-4">
+                <thead>
+                <tr>
+                    <th scope="col">Částka</th>
+                    <th scope="col">Název</th>
+                    <th scope="col">Datum</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (tuitionPrescriptions != null)
+                {
+                    foreach (var prescription in tuitionPrescriptions)
+                    {
+                        <tr>
+                            <td>@prescription.Amount Kč</td>
+                            <td>@prescription.Name</td>
+                            <td>@prescription.Date.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h4 style="margin-bottom: 24px;">Platby</h4>
+            <table class="table table-striped mt-4">
+                <thead>
+                <tr>
+                    <th scope="col">Částka</th>
+                    <th scope="col">Od</th>
+                    <th scope="col">Datum</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (tuitionPayments != null)
+                {
+                    foreach (var payment in tuitionPayments)
+                    {
+                        <tr>
+                            <td>@payment.Amount Kč</td>
+                            <td>@payment.From</td>
+                            <td>@payment.Date.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h4 style="margin-top: 32px;">K úhradě: @CalculatePayments(tuitionPayments, tuitionPrescriptions) Kč</h4>
+    <h3 style="margin-bottom: 32px; margin-top: 48px;">Ubytování</h3>
+    <div class="row">
+        <div class="col">
+            <h4 style="margin-bottom: 24px;">Předpis</h4>
+            <table class="table table-striped mt-4">
+                <thead>
+                <tr>
+                    <th scope="col">Částka</th>
+                    <th scope="col">Název</th>
+                    <th scope="col">Datum</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (accommodationPrescriptions != null)
+                {
+                    foreach (var prescription in accommodationPrescriptions)
+                    {
+                        <tr>
+                            <td>@prescription.Amount Kč</td>
+                            <td>@prescription.Name</td>
+                            <td>@prescription.Date.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h4 style="margin-bottom: 24px;">Platby</h4>
+            <table class="table table-striped mt-4">
+                <thead>
+                <tr>
+                    <th scope="col">Částka</th>
+                    <th scope="col">Od</th>
+                    <th scope="col">Datum</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (accommodationPayments != null)
+                {
+                    foreach (var payment in accommodationPayments)
+                    {
+                        <tr>
+                            <td>@payment.Amount Kč</td>
+                            <td>@payment.From</td>
+                            <td>@payment.Date.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h4 style="margin-top: 32px;">K úhradě: @CalculatePayments(accommodationPayments, accommodationPrescriptions) Kč</h4>
+    <h3 style="margin-bottom: 32px; margin-top: 48px;">Fond</h3>
+    <div class="row">
+        <div class="col">
+            <h4 style="margin-bottom: 24px;">Předpis</h4>
+            <table class="table table-striped mt-4">
+                <thead>
+                <tr>
+                    <th scope="col">Částka</th>
+                    <th scope="col">Název</th>
+                    <th scope="col">Datum</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (fundPrescriptions != null)
+                {
+                    foreach (var prescription in fundPrescriptions)
+                    {
+                        <tr>
+                            <td>@prescription.Amount Kč</td>
+                            <td>@prescription.Name</td>
+                            <td>@prescription.Date.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h4 style="margin-bottom: 24px;">Platby</h4>
+            <table class="table table-striped mt-4">
+                <thead>
+                <tr>
+                    <th scope="col">Částka</th>
+                    <th scope="col">Od</th>
+                    <th scope="col">Datum</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (fundPayments != null)
+                {
+                    foreach (var payment in fundPayments)
+                    {
+                        <tr>
+                            <td>@payment.Amount Kč</td>
+                            <td>@payment.From</td>
+                            <td>@payment.Date.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h4 style="margin-top: 32px;">K úhradě: @CalculatePayments(fundPayments, fundPrescriptions) Kč</h4>
+</div>
+
+@code {
+
+    [Parameter]
+    public string StudentId { get; set; }
+
+    Student student;
+    List<Payment> tuitionPayments = new List<Payment>();
+    List<Payment> accommodationPayments = new List<Payment>();
+    List<Payment> fundPayments = new List<Payment>();
+
+    List<Prescription> tuitionPrescriptions = new List<Prescription>();
+    List<Prescription> accommodationPrescriptions = new List<Prescription>();
+    List<Prescription> fundPrescriptions = new List<Prescription>();
+
+    private int CalculatePayments(List<Payment> payments, List<Prescription> prescriptions)
+    {
+        int result = 0;
+        foreach (var payment in payments)
+        {
+            result -= payment.Amount;
+        }
+        foreach (var prescription in prescriptions)
+        {
+            result += prescription.Amount;
+        }
+        return result;
+    }
+
+    protected override void OnInitialized()
+    {
+        student = _appController.GetStudentById(StudentId);
+
+        tuitionPayments = _appController.GetUserPayments(StudentId, PaymentType.Tuition);
+        accommodationPayments = _appController.GetUserPayments(StudentId, PaymentType.Accommodation);
+        fundPayments = _appController.GetUserPayments(StudentId, PaymentType.Fund);
+
+        tuitionPrescriptions = _appController.GetUserPrescriptions(StudentId, PaymentType.Tuition);
+        accommodationPrescriptions = _appController.GetUserPrescriptions(StudentId, PaymentType.Accommodation);
+        fundPrescriptions = _appController.GetUserPrescriptions(StudentId, PaymentType.Fund);
+
+        StateHasChanged();
+    }
+
+}

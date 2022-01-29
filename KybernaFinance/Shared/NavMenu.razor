@@ -1,0 +1,37 @@
+﻿<div class="top-row pl-4 navbar navbar-dark" style="display: flex; align-items: center; justify-content: center;">
+    <NavLink class="navbar-brand" href="" style="text-decoration: none; font-size: 1.2em; color: white;">Kyberna Finance</NavLink>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                Školné
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="fund">
+                Fond
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="accommodation">
+                Ubytování
+            </NavLink>
+        </li>
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+}
