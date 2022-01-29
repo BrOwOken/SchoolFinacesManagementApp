@@ -11,18 +11,31 @@ namespace KybernaFinance.Data
     {
         private ApplicationDbContext DbContext { get; set; }
         protected UserManager<Student> UserManager { get; set; }
+        protected RoleManager<IdentityRole> RoleManager { get; set; }
+        
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public AppController(UserManager<Student> userManager, ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+        public AppController(UserManager<Student> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
         {
+            RoleManager = roleManager;
             DbContext = dbContext;
             UserManager = userManager;
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        public Task<Student> GetCurrentUserAsync()
+        public void CreateRole(string name)
         {
-            return UserManager.GetUserAsync(httpContextAccessor.HttpContext.User);
+            RoleManager.Roles.Append(new IdentityRole(name));
+        }
+
+        public async void PromoteToAdmin()
+        {
+            var currentUser = UserManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+            await UserManager.AddToRoleAsync(currentUser, "admin");
+        }
+        public async Task<Student> GetCurrentUserAsync()
+        {
+            return await UserManager.GetUserAsync(httpContextAccessor.HttpContext.User);
         }
 
         public List<Prescription> GetCurrentUserPrescriptions(PaymentType type)
